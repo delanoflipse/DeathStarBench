@@ -2,15 +2,12 @@ package tracing
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"log"
 
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
-
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 // var (
@@ -18,7 +15,7 @@ import (
 // )
 
 // Init returns a newly configured tracer
-func Init(serviceName, host string) (*sdktrace.TracerProvider, error) {
+func Init(serviceName, host string) (*trace.TracerProvider, error) {
 
 	// ratio := defaultSampleRatio
 	// if val, ok := os.LookupEnv("JAEGER_SAMPLE_RATIO"); ok {
@@ -46,32 +43,32 @@ func Init(serviceName, host string) (*sdktrace.TracerProvider, error) {
 	// cfg, err := tempCfg.FromEnv()
 
 	ctx := context.Background()
-	exporter, err := otlptracegrpc.New(ctx)
-
+	traceExporter, err := otlptracegrpc.New(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create OpenTelemetry exporter: %v", err)
+		return nil, err
 	}
 
-	resource, err := resource.Merge(
-		resource.Default(),
-		resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceName(serviceName),
-		),
+	res, err := resource.New(
+		context.Background(),
+		resource.WithFromEnv(),      // Discover and provide attributes from OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables.
+		resource.WithTelemetrySDK(), // Discover and provide information about the OpenTelemetry SDK used.
+		resource.WithProcess(),      // Discover and provide process information.
+		resource.WithOS(),           // Discover and provide OS information.
+		resource.WithContainer(),    // Discover and provide container information.
+		resource.WithHost(),         // Discover and provide host information.
 	)
 
-	if err != nil {
-		panic(err)
+	if errors.Is(err, resource.ErrPartialResource) || errors.Is(err, resource.ErrSchemaURLConflict) {
+		log.Println(err) // Log non-fatal issues.
+	} else if err != nil {
+		log.Fatalln(err) // The error may be fatal.
 	}
 
-	provider := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithSyncer(exporter),
-		sdktrace.WithResource(resource),
+	tracerProvider := trace.NewTracerProvider(
+		trace.WithResource(res),
+		trace.WithSyncer(traceExporter),
+		trace.WithSampler(trace.AlwaysSample()),
 	)
 
-	otel.SetTracerProvider(provider)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-
-	return provider, nil
+	return tracerProvider, nil
 }
