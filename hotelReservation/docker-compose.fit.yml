@@ -16,6 +16,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=frontend
     - PROXY_HOST=0.0.0.0:5000
     - PROXY_TARGET=http://frontend-instrumented:5000
@@ -52,6 +53,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=profile
     - PROXY_HOST=0.0.0.0:8081
     - PROXY_TARGET=http://profile-instrumented:8081
@@ -88,6 +90,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=search
     - PROXY_HOST=0.0.0.0:8082
     - PROXY_TARGET=http://search-instrumented:8082
@@ -122,6 +125,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=geo
     - PROXY_HOST=0.0.0.0:8083
     - PROXY_TARGET=http://geo-instrumented:8083
@@ -157,6 +161,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=rate
     - PROXY_HOST=0.0.0.0:8084
     - PROXY_TARGET=http://rate-instrumented:8084
@@ -193,6 +198,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=review
     - PROXY_HOST=0.0.0.0:8088
     - PROXY_TARGET=http://review-instrumented:8088
@@ -223,6 +229,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=attractions
     - PROXY_HOST=0.0.0.0:8089
     - PROXY_TARGET=http://attractions-instrumented:8089
@@ -252,6 +259,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=recommendation
     - PROXY_HOST=0.0.0.0:8085
     - PROXY_TARGET=http://recommendation-instrumented:8085
@@ -287,6 +295,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=user
     - PROXY_HOST=0.0.0.0:8086
     - PROXY_TARGET=http://user-instrumented:8086
@@ -322,6 +331,7 @@ services:
     environment:
     - CONTROLLER_HOST=reynard-controller:5000
     - CONTROL_PORT=5115
+    - LOG_LEVEL
     - SERVICE_NAME=reservation
     - PROXY_HOST=0.0.0.0:8087
     - PROXY_TARGET=http://reservation-instrumented:8087
@@ -506,6 +516,7 @@ services:
     - 6116:5000
     environment:
     - PROXY_LIST=frontend:5115,profile:5115,search:5115,geo:5115,rate:5115,review:5115,attractions:5115,recommendation:5115,user:5115,reservation:5115
+    - LOG_LEVEL
 version: '3.8'
 volumes:
   geo: null
