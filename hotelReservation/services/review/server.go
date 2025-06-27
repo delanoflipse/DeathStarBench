@@ -6,6 +6,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
 	// "io/ioutil"
 	"net"
@@ -16,11 +17,10 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/registry"
-	pb "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/review/proto"
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tls"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/registry"
+	pb "github.com/delimitrou/DeathStarBench/hotelReservation/services/review/proto"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/tls"
 	"github.com/google/uuid"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -29,6 +29,7 @@ import (
 	// "strings"
 
 	"github.com/bradfitz/gomemcache/memcache"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 const name = "srv-review"
@@ -37,7 +38,7 @@ const name = "srv-review"
 type Server struct {
 	pb.UnimplementedReviewServer
 
-	Tracer      opentracing.Tracer
+	Tracer      *sdktrace.TracerProvider
 	Port        int
 	IpAddr      string
 	MongoClient *mongo.Client
@@ -48,7 +49,6 @@ type Server struct {
 
 // Run starts the server
 func (s *Server) Run() error {
-	opentracing.SetGlobalTracer(s.Tracer)
 
 	if s.Port == 0 {
 		return fmt.Errorf("server port must be set")
@@ -63,9 +63,7 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.UnaryInterceptor(
-			otgrpc.OpenTracingServerInterceptor(s.Tracer),
-		),
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 	}
 
 	if tlsopt := tls.GetServerOpt(); tlsopt != nil {

@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tls"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/tls"
 	consul "github.com/hashicorp/consul/api"
-	opentracing "github.com/opentracing/opentracing-go"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -16,9 +15,9 @@ import (
 type DialOption func(name string) (grpc.DialOption, error)
 
 // WithTracer traces rpc calls
-func WithTracer(tracer opentracing.Tracer) DialOption {
+func WithTracer() DialOption {
 	return func(name string) (grpc.DialOption, error) {
-		return grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(tracer)), nil
+		return grpc.WithStatsHandler(otelgrpc.NewClientHandler()), nil
 	}
 }
 

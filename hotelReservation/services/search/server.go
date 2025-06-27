@@ -5,17 +5,17 @@ import (
 	"net"
 	"time"
 
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/dialer"
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/registry"
-	geo "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/geo/proto"
-	rate "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/rate/proto"
-	pb "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/search/proto"
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tls"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/dialer"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/registry"
+	geo "github.com/delimitrou/DeathStarBench/hotelReservation/services/geo/proto"
+	rate "github.com/delimitrou/DeathStarBench/hotelReservation/services/rate/proto"
+	pb "github.com/delimitrou/DeathStarBench/hotelReservation/services/search/proto"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/tls"
 	"github.com/google/uuid"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	_ "github.com/mbobakov/grpc-consul-resolver"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -31,7 +31,7 @@ type Server struct {
 	rateClient rate.RateClient
 	uuid       string
 
-	Tracer     opentracing.Tracer
+	Tracer     *sdktrace.TracerProvider
 	Port       int
 	IpAddr     string
 	ConsulAddr string
@@ -54,9 +54,7 @@ func (s *Server) Run() error {
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			PermitWithoutStream: true,
 		}),
-		grpc.UnaryInterceptor(
-			otgrpc.OpenTracingServerInterceptor(s.Tracer),
-		),
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 	}
 
 	if tlsopt := tls.GetServerOpt(); tlsopt != nil {
@@ -115,11 +113,11 @@ func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 	if s.KnativeDns != "" {
 		return dialer.Dial(
 			fmt.Sprintf("consul://%s/%s.%s", s.ConsulAddr, name, s.KnativeDns),
-			dialer.WithTracer(s.Tracer))
+			dialer.WithTracer())
 	} else {
 		return dialer.Dial(
 			fmt.Sprintf("consul://%s/%s", s.ConsulAddr, name),
-			dialer.WithTracer(s.Tracer),
+			dialer.WithTracer(),
 			dialer.WithBalancer(s.Registry.Client),
 		)
 	}

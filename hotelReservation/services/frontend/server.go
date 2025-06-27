@@ -8,20 +8,20 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/dialer"
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/registry"
-	attractions "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/attractions/proto"
-	profile "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/profile/proto"
-	recommendation "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/recommendation/proto"
-	reservation "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/reservation/proto"
-	review "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/review/proto"
-	search "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/search/proto"
-	user "github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/services/user/proto"
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tls"
-	"github.com/delimitrou/DeathStarBench/tree/master/hotelReservation/tracing"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/dialer"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/registry"
+	attractions "github.com/delimitrou/DeathStarBench/hotelReservation/services/attractions/proto"
+	profile "github.com/delimitrou/DeathStarBench/hotelReservation/services/profile/proto"
+	recommendation "github.com/delimitrou/DeathStarBench/hotelReservation/services/recommendation/proto"
+	reservation "github.com/delimitrou/DeathStarBench/hotelReservation/services/reservation/proto"
+	review "github.com/delimitrou/DeathStarBench/hotelReservation/services/review/proto"
+	search "github.com/delimitrou/DeathStarBench/hotelReservation/services/search/proto"
+	user "github.com/delimitrou/DeathStarBench/hotelReservation/services/user/proto"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/tls"
+	"github.com/delimitrou/DeathStarBench/hotelReservation/tracing"
 	_ "github.com/mbobakov/grpc-consul-resolver"
-	"github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
 )
 
@@ -44,7 +44,7 @@ type Server struct {
 	IpAddr     string
 	ConsulAddr string
 	Port       int
-	Tracer     opentracing.Tracer
+	Tracer     *sdktrace.TracerProvider
 	Registry   *registry.Client
 }
 
@@ -132,7 +132,7 @@ func (s *Server) initSearchClient(name string) error {
 func (s *Server) initReviewClient(name string) error {
 	conn, err := dialer.Dial(
 		name,
-		dialer.WithTracer(s.Tracer),
+		dialer.WithTracer(),
 		dialer.WithBalancer(s.Registry.Client),
 	)
 	if err != nil {
@@ -145,7 +145,7 @@ func (s *Server) initReviewClient(name string) error {
 func (s *Server) initAttractionsClient(name string) error {
 	conn, err := dialer.Dial(
 		name,
-		dialer.WithTracer(s.Tracer),
+		dialer.WithTracer(),
 		dialer.WithBalancer(s.Registry.Client),
 	)
 	if err != nil {
@@ -199,11 +199,11 @@ func (s *Server) getGprcConn(name string) (*grpc.ClientConn, error) {
 	if s.KnativeDns != "" {
 		return dialer.Dial(
 			fmt.Sprintf("consul://%s/%s.%s", s.ConsulAddr, name, s.KnativeDns),
-			dialer.WithTracer(s.Tracer))
+			dialer.WithTracer())
 	} else {
 		return dialer.Dial(
 			fmt.Sprintf("consul://%s/%s", s.ConsulAddr, name),
-			dialer.WithTracer(s.Tracer),
+			dialer.WithTracer(),
 			dialer.WithBalancer(s.Registry.Client),
 		)
 	}
