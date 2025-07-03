@@ -21,7 +21,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -43,7 +43,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -65,7 +65,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -85,7 +85,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -106,7 +106,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -125,30 +125,30 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_review_single_node
+    # image: hotel_reserv_review_single_node
     entrypoint: review
-    container_name: 'hotel_reserv_review'
+    container_name: "hotel_reserv_review"
     depends_on:
       - mongodb-review
       - memcached-review
       - consul
     restart: always
-  
+
   attractions:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - MEMC_TIMEOUT
       - LOG_LEVEL
     build: .
-    image: hotel_reserv_attractions_single_node
+    # image: hotel_reserv_attractions_single_node
     entrypoint: attractions
-    container_name: 'hotel_reserv_attractions'
+    container_name: "hotel_reserv_attractions"
     depends_on:
       - mongodb-attractions
       - consul
@@ -161,7 +161,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -182,7 +182,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -203,7 +203,7 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
     image: deathstarbench/hotel-reservation:latest
@@ -219,16 +219,9 @@ services:
         condition: any
 
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/jaeger:latest
     ports:
-      - "14269"
-      - "5778:5778"
-      - "14268:14268"
-      - "14267"
       - "16686:16686"
-      - "5775:5775/udp"
-      - "6831:6831/udp"
-      - "6832:6832/udp"
     restart: always
     deploy:
       replicas: 1
@@ -253,7 +246,7 @@ services:
   memcached-review:
     image: memcached
     # hostname: user-memcached
-    container_name: 'hotel_reserv_review_mmc'
+    container_name: "hotel_reserv_review_mmc"
     restart: always
     environment:
       - MEMCACHED_CACHE_SIZE=128
