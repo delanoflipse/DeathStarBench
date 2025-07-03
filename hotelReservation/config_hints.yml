@@ -1,0 +1,10 @@
+frontend_port: 5000
+geo_port: 8083
+profile_port: 8081
+review_port: 8088
+attractions_port: 8089
+rate_port: 8084
+recommendation_port: 8085
+reservation_port: 8087
+search_port: 8082
+user_port: 8086
