@@ -21,7 +21,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
@@ -44,7 +43,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
@@ -67,7 +65,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
@@ -88,7 +85,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
@@ -110,7 +106,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
@@ -130,7 +125,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - MEMC_TIMEOUT
       - LOG_LEVEL
@@ -148,7 +142,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - MEMC_TIMEOUT
       - LOG_LEVEL
@@ -168,7 +161,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
@@ -190,7 +182,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
@@ -212,7 +203,6 @@ services:
     environment:
       - TLS
       - GC
-      - JAEGER_SAMPLE_RATIO
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - LOG_LEVEL
     build: .
